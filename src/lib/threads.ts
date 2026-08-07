@@ -9,6 +9,7 @@ export type Thread = {
 };
 
 const KEY = "manus.threads.v1";
+const EMPTY: Thread[] = [];
 const listeners = new Set<() => void>();
 let cache: Thread[] | null = null;
 
@@ -46,7 +47,7 @@ export function useThreads(): Thread[] {
   return useSyncExternalStore(
     subscribe,
     () => read(),
-    () => [] as Thread[],
+    () => EMPTY,
   );
 }
 
