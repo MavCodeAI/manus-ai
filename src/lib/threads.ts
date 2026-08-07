@@ -36,7 +36,16 @@ function write(next: Thread[]) {
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
+  if (typeof window !== "undefined" && listeners.size === 1) {
+    window.addEventListener("storage", onStorage);
+  }
   return () => listeners.delete(listener);
+}
+
+function onStorage(event: StorageEvent) {
+  if (event.key !== KEY) return;
+  cache = null;
+  listeners.forEach((l) => l());
 }
 
 export function newThreadId() {
