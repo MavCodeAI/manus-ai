@@ -1,24 +1,34 @@
+import { AppShell } from "@/components/manus/AppShell";
+import { ChatView } from "@/components/manus/ChatView";
+import { newThreadId } from "@/lib/threads";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Manus — the autonomous AI agent that finishes the work" },
+      {
+        name: "description",
+        content:
+          "Give Manus a task: it plans the steps, searches the live web, and delivers finished files back to you.",
+      },
+      { property: "og:title", content: "Manus — autonomous AI agent" },
+      {
+        property: "og:description",
+        content: "Plans tasks, searches the web, and hands back finished files.",
+      },
+    ],
+  }),
+  component: NewTaskPage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function NewTaskPage() {
+  const [threadId] = useState(() => newThreadId());
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <AppShell>
+      <ChatView threadId={threadId} initialMessages={[]} />
+    </AppShell>
   );
 }
