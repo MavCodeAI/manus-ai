@@ -1,8 +1,5 @@
-import { AppShell } from "@/components/manus/AppShell";
-import { ChatView } from "@/components/manus/ChatView";
 import { newThreadId } from "@/lib/threads";
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,15 +17,8 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: NewTaskPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/$threadId", params: { threadId: newThreadId() }, replace: true });
+  },
+  component: () => null,
 });
-
-function NewTaskPage() {
-  const [threadId] = useState(() => newThreadId());
-
-  return (
-    <AppShell>
-      <ChatView threadId={threadId} initialMessages={[]} />
-    </AppShell>
-  );
-}
