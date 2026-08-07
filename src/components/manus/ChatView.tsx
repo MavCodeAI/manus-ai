@@ -11,12 +11,16 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { AttachPanel, type Attachment } from "@/components/manus/AttachPanel";
+import { TaskPanel, deriveTasks } from "@/components/manus/TaskPanel";
 import { FileCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
 import manusMark from "@/assets/manus-mark.png";
+import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
-import { useEffect, useRef, useState } from "react";
+import { ListChecks } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const SUGGESTIONS = [
@@ -34,6 +38,8 @@ export function ChatView({
   initialMessages: UIMessage[];
 }) {
   const [input, setInput] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [panelOpen, setPanelOpen] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const thread = useThread(threadId);
 
@@ -53,17 +59,23 @@ export function ChatView({
   }, [threadId, status]);
 
   const busy = status === "submitted" || status === "streaming";
+  const tasks = useMemo(() => deriveTasks(messages, busy), [messages, busy]);
 
   const submit = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || busy) return;
     createThread(threadId, trimmed.slice(0, 60));
     setInput("");
-    void sendMessage({ text: trimmed });
+    const context = attachments
+      .map((a) => `\n\n--- Attached file: ${a.filename} ---\n${a.text}`)
+      .join("");
+    setAttachments([]);
+    void sendMessage({ text: trimmed + context });
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
       <Conversation className="flex-1">
         <ConversationContent className="mx-auto w-full max-w-3xl px-4 pb-4">
           {messages.length === 0 ? (
