@@ -47,9 +47,9 @@ export function SearchCard({ part }: { part: ToolUIPart }) {
   return (
     <Tool defaultOpen={false} className="my-3">
       <ToolHeader
-        type={`Web search — ${output?.query ?? input?.query ?? ""}`}
+        type={part.type}
         state={part.state}
-        icon={<Globe className="size-4 text-accent" />}
+        title={`Web search — ${output?.query ?? input?.query ?? ""}`}
       />
       <ToolContent>
         <ToolInput input={part.input} />
