@@ -9,8 +9,8 @@ export function ThreadSidebar({
   activeId,
   onClose,
 }: {
-  activeId?: string;
-  onClose?: () => void;
+  activeId?: string | undefined;
+  onClose?: (() => void) | undefined;
 }) {
   const threads = useThreads();
   const navigate = useNavigate();

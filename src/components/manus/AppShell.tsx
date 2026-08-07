@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-export function AppShell({ activeId, children }: { activeId?: string; children: ReactNode }) {
+export function AppShell({
+  activeId,
+  children,
+}: {
+  activeId?: string | undefined;
+  children: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
