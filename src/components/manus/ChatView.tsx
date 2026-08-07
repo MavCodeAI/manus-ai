@@ -135,6 +135,17 @@ export function ChatView({
       </Conversation>
 
       <div className="mx-auto w-full max-w-3xl px-4 pb-6">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <AttachPanel attachments={attachments} onChange={setAttachments} />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground xl:hidden"
+            onClick={() => setPanelOpen((value) => !value)}
+          >
+            <ListChecks /> Tasks ({tasks.length})
+          </Button>
+        </div>
         <PromptInput
           onSubmit={(_message, event) => {
             event.preventDefault();
@@ -155,6 +166,18 @@ export function ChatView({
           Tasks are saved in this browser only.
         </p>
       </div>
+      </div>
+
+      {panelOpen && (
+        <div className="hidden xl:block">
+          <TaskPanel tasks={tasks} onClose={() => setPanelOpen(false)} />
+        </div>
+      )}
+      {panelOpen && (
+        <div className="fixed inset-y-0 right-0 z-50 xl:hidden">
+          <TaskPanel tasks={tasks} onClose={() => setPanelOpen(false)} />
+        </div>
+      )}
     </div>
   );
 }
