@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
-import { ListChecks } from "lucide-react";
+import { Copy, ListChecks, Moon, RefreshCw, Square, Sun } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -43,7 +43,9 @@ export function ChatView({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const thread = useThread(threadId);
 
-  const { messages, sendMessage, status } = useChat({
+  const [dark, setDark] = useState(false);
+
+  const { messages, sendMessage, status, stop, regenerate } = useChat({
     id: threadId,
     messages: initialMessages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
@@ -57,6 +59,19 @@ export function ChatView({
   useEffect(() => {
     textareaRef.current?.focus();
   }, [threadId, status]);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("manus.theme") === "dark";
+    setDark(stored);
+    document.documentElement.classList.toggle("dark", stored);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    window.localStorage.setItem("manus.theme", next ? "dark" : "light");
+  };
 
   const busy = status === "submitted" || status === "streaming";
   const tasks = useMemo(() => deriveTasks(messages, busy), [messages, busy]);
@@ -122,6 +137,34 @@ export function ChatView({
                     }
                     return null;
                   })}
+
+                  {message.role === "assistant" && !busy && (
+                    <div className="mt-1 flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Copy answer"
+                        onClick={() => {
+                          const text = message.parts
+                            .map((part) => (part.type === "text" ? part.text : ""))
+                            .join("\n")
+                            .trim();
+                          void navigator.clipboard.writeText(text);
+                          toast.success("Copied to clipboard");
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Regenerate answer"
+                        onClick={() => void regenerate({ messageId: message.id })}
+                      >
+                        <RefreshCw />
+                      </Button>
+                    </div>
+                  )}
                 </MessageContent>
               </Message>
             ))
@@ -137,14 +180,35 @@ export function ChatView({
       <div className="mx-auto w-full max-w-3xl px-4 pb-6">
         <div className="mb-2 flex items-center justify-between gap-2">
           <AttachPanel attachments={attachments} onChange={setAttachments} />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 text-muted-foreground xl:hidden"
-            onClick={() => setPanelOpen((value) => !value)}
-          >
-            <ListChecks /> Tasks ({tasks.length})
-          </Button>
+          <div className="flex shrink-0 items-center gap-1">
+            {busy && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground"
+                onClick={() => stop()}
+              >
+                <Square /> Stop
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Toggle dark mode"
+              className="text-muted-foreground"
+              onClick={toggleTheme}
+            >
+              {dark ? <Sun /> : <Moon />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground xl:hidden"
+              onClick={() => setPanelOpen((value) => !value)}
+            >
+              <ListChecks /> {tasks.length}
+            </Button>
+          </div>
         </div>
         <PromptInput
           onSubmit={(_message, event) => {
@@ -158,7 +222,10 @@ export function ChatView({
             onChange={(event) => setInput(event.currentTarget.value)}
             placeholder={thread ? "Follow up with Manus…" : "Give Manus a task…"}
           />
-          <PromptInputFooter className="justify-end">
+          <PromptInputFooter className="justify-between">
+            <span className="pl-1 text-xs text-muted-foreground">
+              {input.length > 0 ? `${input.length} chars · Enter to send` : "Shift+Enter for a new line"}
+            </span>
             <PromptInputSubmit status={status} disabled={!input.trim() && !busy} />
           </PromptInputFooter>
         </PromptInput>
