@@ -5,6 +5,7 @@ export type Thread = {
   id: string;
   title: string;
   updatedAt: number;
+  pinned?: boolean;
   messages: UIMessage[];
 };
 
@@ -98,4 +99,57 @@ export function deleteThread(id: string) {
 
 export function renameThread(id: string, title: string) {
   write(read().map((t) => (t.id === id ? { ...t, title } : t)));
+}
+export type ThreadStatus = "draft" | "active" | "done";
+
+export function threadStatus(thread: Thread): ThreadStatus {
+  if (thread.messages.length === 0) return "draft";
+  const last = thread.messages[thread.messages.length - 1];
+  return last?.role === "assistant" ? "done" : "active";
+}
+
+export function togglePin(id: string) {
+  write(read().map((t) => (t.id === id ? { ...t, pinned: !t.pinned } : t)));
+}
+
+export function duplicateThread(id: string): string | null {
+  const source = read().find((t) => t.id === id);
+  if (!source) return null;
+  const newId = newThreadId();
+  write([
+    { ...source, id: newId, title: `${source.title} (copy)`, pinned: false, updatedAt: Date.now() },
+    ...read(),
+  ]);
+  return newId;
+}
+
+export function clearAllThreads() {
+  write([]);
+}
+
+export function threadToMarkdown(thread: Thread): string {
+  const lines = [`# ${thread.title}`, ""];
+  for (const message of thread.messages) {
+    lines.push(message.role === "user" ? "## You" : "## Manus");
+    for (const part of message.parts) {
+      if (part.type === "text") lines.push(part.text, "");
+      else if (part.type === "tool-deliver_file") {
+        const output = (part as { output?: { filename?: string; content?: string } }).output;
+        if (output?.filename) {
+          lines.push(`**File: ${output.filename}**`, "```", output.content ?? "", "```", "");
+        }
+      }
+    }
+  }
+  return lines.join("\n");
+}
+
+export function relativeTime(timestamp: number): string {
+  const seconds = Math.max(1, Math.round((Date.now() - timestamp) / 1000));
+  if (seconds < 60) return "just now";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
 }
