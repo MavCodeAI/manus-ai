@@ -7,7 +7,7 @@ import {
 } from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
 import type { ToolUIPart } from "ai";
-import { CheckCircle2, Circle, Download, FileText, Globe, ListChecks } from "lucide-react";
+import { CheckCircle2, Circle, Download, FileText, ListChecks } from "lucide-react";
 
 type PlanOutput = { title: string; steps: string[] };
 type SearchOutput = { query: string; results: { title: string; url: string; snippet: string }[] };
