@@ -39,7 +39,7 @@ export function ChatView({
 }) {
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const thread = useThread(threadId);
 
@@ -168,13 +168,11 @@ export function ChatView({
       </div>
       </div>
 
+      <div className="hidden xl:block">
+        <TaskPanel tasks={tasks} />
+      </div>
       {panelOpen && (
-        <div className="hidden xl:block">
-          <TaskPanel tasks={tasks} onClose={() => setPanelOpen(false)} />
-        </div>
-      )}
-      {panelOpen && (
-        <div className="fixed inset-y-0 right-0 z-50 xl:hidden">
+        <div className="fixed inset-y-0 right-0 z-50 shadow-xl xl:hidden">
           <TaskPanel tasks={tasks} onClose={() => setPanelOpen(false)} />
         </div>
       )}
