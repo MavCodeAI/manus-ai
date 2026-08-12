@@ -45,7 +45,7 @@ export function ChatView({
 
   const [dark, setDark] = useState(false);
 
-  const { messages, sendMessage, status, stop, regenerate } = useChat({
+  const { messages, sendMessage, status, stop, regenerate, error } = useChat({
     id: threadId,
     messages: initialMessages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
@@ -91,6 +91,18 @@ export function ChatView({
   return (
     <div className="flex h-full min-w-0">
       <div className="flex min-w-0 flex-1 flex-col">
+      <header className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4 py-2.5 sm:px-6">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{thread?.title ?? "New task"}</p>
+          <p className="text-xs text-muted-foreground">
+            {busy ? "Manus is working on this task…" : messages.length > 0 ? "Task ready for follow-up" : "Describe the outcome you want"}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+          <span className={busy ? "size-2 animate-pulse rounded-full bg-accent" : "size-2 rounded-full bg-emerald-500"} />
+          <span>{busy ? "Running" : "Ready"}</span>
+        </div>
+      </header>
       <Conversation className="flex-1">
         <ConversationContent className="mx-auto w-full max-w-3xl px-4 pb-4">
           {messages.length === 0 ? (
@@ -172,6 +184,23 @@ export function ChatView({
 
           {status === "submitted" && (
             <Shimmer className="px-1 text-sm">Manus is thinking…</Shimmer>
+          )}
+          {error && (
+            <div role="alert" className="surface-panel mt-3 border-destructive/30 bg-destructive/5 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-destructive">This run could not finish</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {error.message || "Something went wrong while Manus was working. You can retry the last answer."}
+                  </p>
+                </div>
+                {messages.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={() => void regenerate()}>
+                    Retry
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
         </ConversationContent>
         <ConversationScrollButton />

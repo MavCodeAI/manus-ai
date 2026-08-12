@@ -100,10 +100,12 @@ export function TaskPanel({
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col border-l border-border bg-sidebar">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <span className="text-sm font-medium">Tasks in this thread</span>
-        <span className="text-xs text-muted-foreground">{tasks.length}</span>
+        <span className="text-sm font-medium">Run inspector</span>
+        <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+          {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+        </span>
         {onClose && (
-          <Button variant="ghost" size="icon-sm" className="ml-auto" onClick={onClose}>
+            <Button variant="ghost" size="icon-sm" className="ml-auto" title="Close run inspector" onClick={onClose}>
             <PanelRightClose />
           </Button>
         )}
@@ -111,14 +113,24 @@ export function TaskPanel({
 
       <div className="flex-1 space-y-3 overflow-y-auto p-3">
         {tasks.length === 0 && (
-          <p className="px-1 text-sm text-muted-foreground">
-            No tasks yet. Give Manus something to do and its plan, progress and outputs show up
-            here.
-          </p>
+            <div className="surface-panel p-4">
+              <p className="text-sm font-medium">Your run will appear here</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Plans, live progress, sources, approvals, and downloadable files will stay visible
+                while Manus works.
+              </p>
+            </div>
         )}
 
         {tasks.map((task) => (
-          <div key={task.id} className="surface-panel p-3">
+            <div key={task.id} className="surface-panel p-3" aria-label={`${task.title} ${task.status}`}>
+              <div className="mb-2 flex items-center justify-between gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <span>Execution</span>
+                <span className={cn(
+                  "rounded-full px-2 py-0.5",
+                  task.status === "done" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-accent/10 text-accent"
+                )}>{task.status}</span>
+              </div>
             <div className="flex items-start gap-2">
               {task.status === "done" ? (
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent" />
@@ -171,7 +183,8 @@ export function TaskPanel({
                   <button
                     key={`${file.filename}-${index}`}
                     onClick={() => downloadFile(file.filename, file.content)}
-                    className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left text-xs hover:bg-secondary"
+                    title={`Download ${file.filename}`}
+                    className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left text-xs hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <FileText className="size-3 shrink-0 text-accent" />
                     <span className="truncate font-mono">{file.filename}</span>

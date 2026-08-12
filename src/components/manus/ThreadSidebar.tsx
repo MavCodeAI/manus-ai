@@ -35,7 +35,7 @@ const FILTERS: { id: "all" | ThreadStatus; label: string }[] = [
   { id: "all", label: "All" },
   { id: "active", label: "Running" },
   { id: "done", label: "Done" },
-  { id: "draft", label: "Empty" },
+  { id: "draft", label: "Drafts" },
 ];
 
 const statusDot: Record<ThreadStatus, string> = {
@@ -102,7 +102,10 @@ export function ThreadSidebar({
     <aside className="flex h-full w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
       <div className="flex items-center gap-2 px-4 py-4">
         <img src={manusMark} alt="Manus" width={28} height={28} className="size-7" />
-        <span className="text-display text-xl">Manus</span>
+        <div className="min-w-0">
+          <span className="text-display text-xl">Manus</span>
+          <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-muted-foreground">Local workspace</span>
+        </div>
         {onClose && (
           <Button variant="ghost" size="icon-sm" className="ml-auto lg:hidden" onClick={onClose}>
             <PanelLeftClose />
@@ -206,6 +209,7 @@ export function ThreadSidebar({
                   <div className="flex shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
                     <button
                       aria-label={thread.pinned ? "Unpin task" : "Pin task"}
+                      title={thread.pinned ? "Unpin task" : "Pin task"}
                       className="rounded-md p-1.5 text-muted-foreground hover:text-accent"
                       onClick={() => togglePin(thread.id)}
                     >
@@ -213,6 +217,7 @@ export function ThreadSidebar({
                     </button>
                     <button
                       aria-label="Rename task"
+                      title="Rename task"
                       className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
                       onClick={() => {
                         setEditingId(thread.id);
@@ -223,6 +228,7 @@ export function ThreadSidebar({
                     </button>
                     <button
                       aria-label="Duplicate task"
+                      title="Duplicate task"
                       className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
                       onClick={() => {
                         const id = duplicateThread(thread.id);
@@ -233,6 +239,7 @@ export function ThreadSidebar({
                     </button>
                     <button
                       aria-label="Export task as markdown"
+                      title="Export task as Markdown"
                       className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
                       onClick={() => exportThread(thread.id)}
                     >
@@ -240,8 +247,10 @@ export function ThreadSidebar({
                     </button>
                     <button
                       aria-label="Delete task"
+                      title="Delete task"
                       className="rounded-md p-1.5 text-muted-foreground hover:text-destructive"
                       onClick={() => {
+                        if (!window.confirm(`Delete “${thread.title}”? This cannot be undone.`)) return;
                         deleteThread(thread.id);
                         if (thread.id === activeId) navigate({ to: "/" });
                       }}
@@ -256,6 +265,10 @@ export function ThreadSidebar({
         })}
       </nav>
 
+      <div className="border-t border-sidebar-border px-3 py-2 text-[11px] leading-4 text-muted-foreground">
+        Tasks are stored in this browser. Export important work before clearing data.
+      </div>
+
       {threads.length > 0 && (
         <div className="border-t border-sidebar-border p-3">
           <Button
@@ -263,6 +276,7 @@ export function ThreadSidebar({
             size="sm"
             className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
             onClick={() => {
+              if (!window.confirm("Clear every task from this browser? This cannot be undone.")) return;
               clearAllThreads();
               toast.success("All tasks cleared");
               navigate({ to: "/" });

@@ -33,10 +33,17 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-12 items-center gap-2 border-b border-border px-3 lg:hidden">
-          <Button variant="ghost" size="icon-sm" onClick={() => setOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            title="Open task navigation"
+            aria-label="Open task navigation"
+            onClick={() => setOpen(true)}
+          >
             <PanelLeft />
           </Button>
           <span className="text-display text-lg">Manus</span>
+          <span className="ml-auto text-xs text-muted-foreground">Task workspace</span>
         </header>
         <main className="min-h-0 flex-1">{children}</main>
       </div>
