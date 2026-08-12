@@ -13,7 +13,7 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { AttachPanel, type Attachment } from "@/components/manus/AttachPanel";
 import { TaskPanel, deriveTasks } from "@/components/manus/TaskPanel";
-import { ApprovalCard, CitationCard, FileCard, PageCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
+import { ApprovalCard, CitationCard, FileCard, PageCard, PlanCard, ReviewCard, SearchCard } from "@/components/manus/ToolParts";
 import manusMark from "@/assets/manus-mark.png";
 import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
@@ -167,6 +167,9 @@ export function ChatView({
                     }
                     if (part.type === "tool-open_public_page") {
                       return <PageCard key={index} part={part as ToolUIPart} />;
+                    }
+                    if (part.type === "tool-review_output") {
+                      return <ReviewCard key={index} part={part as ToolUIPart} />;
                     }
                     if (part.type === "tool-deliver_file") {
                       return <FileCard key={index} part={part as ToolUIPart} />;

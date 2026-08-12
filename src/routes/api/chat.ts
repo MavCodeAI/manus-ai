@@ -66,6 +66,36 @@ export const Route = createFileRoute("/api/chat")({
                 return { claim, url, title: page.title, supportedTerms: matched, confidence: terms.length ? matched.length / terms.length : 0, excerpt: page.text.slice(0, 1200) };
               },
             }),
+            review_output: tool({
+              description: "Review a draft report, code sample or artifact before delivery. Identify missing evidence, unclear sections and quality risks, then return a score and concrete fixes.",
+              inputSchema: z.object({
+                artifactType: z.enum(["report", "code", "data", "general"]),
+                content: z.string().min(20),
+                criteria: z.array(z.string()).max(8).optional(),
+              }),
+              execute: async ({ artifactType, content, criteria = [] }) => {
+                const issues: string[] = [];
+                const suggestions: string[] = [];
+                if (content.trim().length < 120) {
+                  issues.push("The draft is very short and may not fully address the task.");
+                  suggestions.push("Add context, assumptions, evidence or a concise conclusion.");
+                }
+                if (artifactType === "report" && !/https?:\\/\\//i.test(content)) {
+                  issues.push("No source URLs or citations were detected in the report.");
+                  suggestions.push("Add source links beside important factual claims.");
+                }
+                if (artifactType === "code" && !/```|function |const |import |def |class /i.test(content)) {
+                  issues.push("The draft does not look like a complete code artifact.");
+                  suggestions.push("Include the complete implementation and a short usage example.");
+                }
+                if (criteria.length > 0 && criteria.some((item) => !content.toLowerCase().includes(item.toLowerCase()))) {
+                  issues.push("One or more requested criteria were not visibly addressed.");
+                  suggestions.push(`Check these criteria before delivery: ${criteria.join(", ")}.`);
+                }
+                const score = Math.max(0, Math.round(100 - issues.length * 20));
+                return { artifactType, score, passed: issues.length === 0, issues, suggestions };
+              },
+            }),
             open_public_page: tool({
               description:
                 "Open a public HTTP(S) page found during research and extract its title, readable text and links. Never use this tool for private sessions or sensitive actions.",
