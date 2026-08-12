@@ -21,6 +21,7 @@ import { MemoryPanel } from "@/components/manus/MemoryPanel";
 import { TaskTemplatesPanel } from "@/components/manus/TaskTemplatesPanel";
 import { WorkspaceFiles } from "@/components/manus/WorkspaceFiles";
 import { WorkspaceSwitcher } from "@/components/manus/WorkspaceSwitcher";
+import { KnowledgePanel } from "@/components/manus/KnowledgePanel";
 import { useActiveProjectId } from "@/lib/workspace";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -124,6 +125,7 @@ export function ThreadSidebar({
 
       <WorkspaceSwitcher />
       <WorkspaceFiles />
+      <KnowledgePanel />
       <ConnectorsPanel />
       <MemoryPanel />
       <TaskTemplatesPanel />
