@@ -8,13 +8,14 @@ import {
 import { Button } from "@/components/ui/button";
 import type { ToolUIPart } from "ai";
 import { resolveApproval, recordApproval } from "@/lib/approvals";
-import { BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, ShieldCheck } from "lucide-react";
+import { BadgeCheck, BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
 
 type PlanOutput = { title: string; steps: string[] };
 type SearchOutput = { query: string; results: { title: string; url: string; snippet: string }[] };
 type PageOutput = { url: string; title: string; text: string; links: { label: string; url: string }[] };
 type ApprovalOutput = { id: string; action: string; reason: string; status: "pending" | "approved" | "denied" };
+type CitationOutput = { claim: string; url: string; title: string; confidence: number; excerpt: string };
 type FileOutput = { filename: string; language: string; content: string; bytes: number };
 
 export function PlanCard({ part }: { part: ToolUIPart }) {
@@ -111,6 +112,13 @@ export function ApprovalCard({ part, onDecision }: { part: ToolUIPart; onDecisio
       </div>
     </div>
   );
+}
+
+export function CitationCard({ part }: { part: ToolUIPart }) {
+  const output = part.output as CitationOutput | undefined;
+  if (!output) return <Tool defaultOpen={false} className="my-3"><ToolHeader type="tool-verify_citation" state={part.state} /><ToolContent><ToolInput input={part.input} /></ToolContent></Tool>;
+  const percent = Math.round(output.confidence * 100);
+  return <div className="surface-panel my-3 border-emerald-500/30 bg-emerald-500/5 p-3"><div className="flex items-start gap-2"><BadgeCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" /><div className="min-w-0"><p className="text-xs font-medium">Citation check · {percent}% match</p><p className="mt-1 text-sm">{output.claim}</p><a href={output.url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-accent hover:underline">{output.title || output.url}</a><p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{output.excerpt}</p></div></div></div>;
 }
 
 export function PageCard({ part }: { part: ToolUIPart }) {
