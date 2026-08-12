@@ -17,6 +17,7 @@ import { ApprovalCard, FileCard, PageCard, PlanCard, SearchCard } from "@/compon
 import manusMark from "@/assets/manus-mark.png";
 import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
+import { recordRunEvent } from "@/lib/run-events";
 import { useActiveProjectId, useProjects } from "@/lib/workspace";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
@@ -53,12 +54,20 @@ export function ChatView({
     id: threadId,
     messages: initialMessages,
     transport: new DefaultChatTransport({ api: "/api/chat" }),
-    onError: (error) => toast.error(error.message || "Manus could not finish that task"),
+    onError: (error) => {
+      recordRunEvent({ runId: threadId, kind: "run.failed", label: "Run failed", detail: error.message });
+      toast.error(error.message || "Manus could not finish that task");
+    },
   });
 
   useEffect(() => {
     if (messages.length > 0) saveMessages(threadId, messages);
   }, [messages, threadId]);
+
+  useEffect(() => {
+    if (status === "submitted") recordRunEvent({ runId: threadId, kind: "run.started", label: "Manus started working" });
+    if (status === "ready" && messages.length > 0) recordRunEvent({ runId: threadId, kind: "run.completed", label: "Run completed" });
+  }, [messages.length, status, threadId]);
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -276,11 +285,11 @@ export function ChatView({
       </div>
 
       <div className="hidden xl:block">
-        <TaskPanel tasks={tasks} />
+          <TaskPanel tasks={tasks} runId={threadId} />
       </div>
       {panelOpen && (
         <div className="fixed inset-y-0 right-0 z-50 shadow-xl xl:hidden">
-          <TaskPanel tasks={tasks} onClose={() => setPanelOpen(false)} />
+          <TaskPanel tasks={tasks} runId={threadId} onClose={() => setPanelOpen(false)} />
         </div>
       )}
     </div>

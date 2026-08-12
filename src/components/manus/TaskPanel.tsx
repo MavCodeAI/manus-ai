@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useRunEvents } from "@/lib/run-events";
 import type { UIMessage } from "ai";
 import {
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   PanelRightClose,
   Search,
   ExternalLink,
+  Activity,
 } from "lucide-react";
 
 export type DerivedTask = {
@@ -99,11 +101,14 @@ function downloadFile(filename: string, content: string) {
 
 export function TaskPanel({
   tasks,
+  runId,
   onClose,
 }: {
   tasks: DerivedTask[];
+  runId?: string;
   onClose?: (() => void) | undefined;
 }) {
+  const events = useRunEvents(runId).slice(-8).reverse();
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col border-l border-border bg-sidebar">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
@@ -119,6 +124,20 @@ export function TaskPanel({
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto p-3">
+        {events.length > 0 && (
+          <div className="surface-panel p-3">
+            <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground"><Activity className="size-3" /> Live event trail</div>
+            <div className="space-y-2">
+              {events.map((event) => (
+                <div key={event.id} className="flex gap-2 text-xs">
+                  <span className="mt-1 size-1.5 shrink-0 rounded-full bg-accent" />
+                  <div className="min-w-0"><p className="text-foreground/80">{event.label}</p>{event.detail && <p className="truncate text-muted-foreground">{event.detail}</p>}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {tasks.length === 0 && (
             <div className="surface-panel p-4">
               <p className="text-sm font-medium">Your run will appear here</p>
