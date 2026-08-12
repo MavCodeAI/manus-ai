@@ -36,8 +36,8 @@ export function WorkspaceFiles() {
           <div key={file.id} className="group flex items-center gap-2 rounded-md px-1.5 py-1.5 hover:bg-secondary">
             <FileText className="size-3.5 shrink-0 text-accent" />
             <span className="min-w-0 flex-1 truncate text-xs" title={file.filename}>{file.filename}</span>
-            <Button variant="ghost" size="icon-sm" title={`Download ${file.filename}`} aria-label={`Download ${file.filename}`} className="size-6 opacity-0 group-hover:opacity-100" onClick={() => downloadFile(file.filename, file.content)}><Download className="size-3" /></Button>
-            <Button variant="ghost" size="icon-sm" title={`Delete ${file.filename}`} aria-label={`Delete ${file.filename}`} className="size-6 opacity-0 group-hover:opacity-100 hover:text-destructive" onClick={() => { if (window.confirm(`Delete ${file.filename}?`)) { deleteWorkspaceFile(file.id); toast.success("File deleted"); } }}><Trash2 className="size-3" /></Button>
+            <Button variant="ghost" size="icon-sm" title={`Download ${file.filename}`} aria-label={`Download ${file.filename}`} className="size-6 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100" onClick={() => downloadFile(file.filename, file.content)}><Download className="size-3" /></Button>
+            <Button variant="ghost" size="icon-sm" title={`Delete ${file.filename}`} aria-label={`Delete ${file.filename}`} className="size-6 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 hover:text-destructive" onClick={() => { if (window.confirm(`Delete ${file.filename}?`)) { deleteWorkspaceFile(file.id); toast.success("File deleted"); } }}><Trash2 className="size-3" /></Button>
           </div>
         ))}
       </div>

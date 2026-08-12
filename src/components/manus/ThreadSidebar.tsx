@@ -108,7 +108,7 @@ export function ThreadSidebar({
   };
 
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside aria-label="Task navigation" className="flex h-full w-72 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar">
       <div className="flex items-center gap-2 px-4 py-4">
         <img src={manusMark} alt="Manus" width={28} height={28} className="size-7" />
         <div className="min-w-0">
@@ -116,7 +116,7 @@ export function ThreadSidebar({
           <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-muted-foreground">Local workspace</span>
         </div>
         {onClose && (
-          <Button variant="ghost" size="icon-sm" className="ml-auto lg:hidden" onClick={onClose}>
+          <Button variant="ghost" size="icon-sm" className="ml-auto lg:hidden" title="Close task navigation" onClick={onClose}>
             <PanelLeftClose />
           </Button>
         )}
@@ -140,6 +140,7 @@ export function ThreadSidebar({
           value={query}
           onChange={(event) => setQuery(event.currentTarget.value)}
           placeholder="Search tasks…"
+          aria-label="Search tasks"
           className="h-9 pl-8"
         />
       </div>
@@ -148,9 +149,11 @@ export function ThreadSidebar({
         {FILTERS.map((option) => (
           <button
             key={option.id}
+            type="button"
+            aria-pressed={filter === option.id}
             onClick={() => setFilter(option.id)}
             className={cn(
-              "rounded-full border border-border px-2.5 py-1 text-xs transition-colors",
+              "rounded-full border border-border px-2.5 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
               filter === option.id
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-secondary",
@@ -161,7 +164,7 @@ export function ThreadSidebar({
         ))}
       </div>
 
-      <nav className="mt-3 flex-1 space-y-1 overflow-y-auto px-2 pb-6">
+      <nav aria-label="Tasks" className="mt-3 min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-6">
         <p className="flex items-center px-2 py-2 text-xs uppercase tracking-widest text-muted-foreground">
           Tasks <span className="ml-auto normal-case tracking-normal">{visible.length}</span>
         </p>
@@ -221,7 +224,7 @@ export function ThreadSidebar({
                       {relativeTime(thread.updatedAt)}
                     </span>
                   </Link>
-                  <div className="flex shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex shrink-0 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
                     <button
                       aria-label={thread.pinned ? "Unpin task" : "Pin task"}
                       title={thread.pinned ? "Unpin task" : "Pin task"}

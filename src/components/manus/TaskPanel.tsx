@@ -110,8 +110,8 @@ export function TaskPanel({
 }) {
   const events = useRunEvents(runId).slice(-8).reverse();
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col border-l border-border bg-sidebar">
-      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+    <aside aria-label="Run inspector" className="flex h-full w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-sidebar">
+      <div className="flex items-center gap-2 border-b border-border px-4 py-3" aria-live="polite">
         <span className="text-sm font-medium">Run inspector</span>
         <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
           {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
@@ -123,7 +123,7 @@ export function TaskPanel({
         )}
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
         {events.length > 0 && (
           <div className="surface-panel p-3">
             <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground"><Activity className="size-3" /> Live event trail</div>
@@ -207,7 +207,7 @@ export function TaskPanel({
               <div className="mt-3 space-y-1 border-t border-border pt-2">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Opened sources</p>
                 {task.pages.map((page, index) => (
-                  <a key={`${page.url}-${index}`} href={page.url} target="_blank" rel="noreferrer" title={page.url} className="flex items-center gap-1.5 truncate rounded-md px-1 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground">
+                  <a key={`${page.url}-${index}`} href={page.url} target="_blank" rel="noreferrer" title={page.url} className="flex items-center gap-1.5 truncate rounded-md px-1 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <ExternalLink className="size-3 shrink-0 text-accent" />
                     <span className="truncate">{page.title}</span>
                   </a>
