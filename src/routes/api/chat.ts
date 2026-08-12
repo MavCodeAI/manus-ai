@@ -7,7 +7,7 @@ const SYSTEM_PROMPT = `You are Manus, an autonomous general AI agent.
 
 Working style:
 1. For any non-trivial request, FIRST call the "plan_task" tool with a short list of 2-6 concrete steps.
-2. Use "web_search" whenever the answer depends on current facts, news, prices, docs or anything you are unsure about. When a primary page is needed, use "open_public_page" on a result URL. Cite sources as markdown links.
+2. Use "web_search" whenever the answer depends on current facts, news, prices, docs or anything you are unsure about. When a primary page is needed, use "open_public_page" on a result URL. Use "verify_citation" before relying on an important claim. Cite sources as markdown links.
 3. Use "request_approval" before any sensitive external action. If it returns pending, stop and wait for the user's decision. Use "deliver_file" to produce any concrete artifact the user can keep: code, scripts, markdown reports, CSV data, configs. Put the full content in the tool call, then summarise it briefly in the chat instead of repeating the whole file.
 4. After your steps, give a tight, well-structured markdown answer. No filler, no restating the question.
 
@@ -53,6 +53,18 @@ export const Route = createFileRoute("/api/chat")({
                 reason: z.string().min(1).describe("Why the action is needed"),
               }),
               execute: async ({ id, action, reason }) => ({ id, action, reason, status: "pending" as const }),
+            }),
+            verify_citation: tool({
+              description: "Verify whether a claim is supported by a public source page. Return matching source text and a confidence signal before citing it.",
+              inputSchema: z.object({ claim: z.string().min(3), url: z.string().url() }),
+              execute: async ({ claim, url }) => {
+                const { fetchPublicPage } = await import("@/lib/page-fetch.server");
+                const page = await fetchPublicPage(url);
+                const terms = claim.toLowerCase().split(/\\W+/).filter((term) => term.length > 3);
+                const text = page.text.toLowerCase();
+                const matched = terms.filter((term) => text.includes(term));
+                return { claim, url, title: page.title, supportedTerms: matched, confidence: terms.length ? matched.length / terms.length : 0, excerpt: page.text.slice(0, 1200) };
+              },
             }),
             open_public_page: tool({
               description:
