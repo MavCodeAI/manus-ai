@@ -6,6 +6,7 @@ export type Thread = {
   title: string;
   updatedAt: number;
   pinned?: boolean;
+  projectId?: string;
   messages: UIMessage[];
 };
 
@@ -66,10 +67,17 @@ export function useThread(id: string): Thread | undefined {
   return threads.find((t) => t.id === id);
 }
 
-export function createThread(id: string, title = "New task"): Thread {
+export function createThread(id: string, title = "New task", projectId?: string): Thread {
   const existing = read().find((t) => t.id === id);
-  if (existing) return existing;
-  const thread: Thread = { id, title, updatedAt: Date.now(), messages: [] };
+  if (existing) {
+    if (projectId && !existing.projectId) {
+      const updated = { ...existing, projectId, updatedAt: Date.now() };
+      write(read().map((thread) => (thread.id === id ? updated : thread)));
+      return updated;
+    }
+    return existing;
+  }
+  const thread: Thread = { id, title, projectId, updatedAt: Date.now(), messages: [] };
   write([thread, ...read()]);
   return thread;
 }

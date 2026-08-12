@@ -13,10 +13,11 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { AttachPanel, type Attachment } from "@/components/manus/AttachPanel";
 import { TaskPanel, deriveTasks } from "@/components/manus/TaskPanel";
-import { FileCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
+import { FileCard, PageCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
 import manusMark from "@/assets/manus-mark.png";
 import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
+import { useActiveProjectId, useProjects } from "@/lib/workspace";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type ToolUIPart, type UIMessage } from "ai";
 import { Copy, ListChecks, Moon, RefreshCw, Square, Sun } from "lucide-react";
@@ -42,6 +43,9 @@ export function ChatView({
   const [panelOpen, setPanelOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const thread = useThread(threadId);
+  const activeProjectId = useActiveProjectId();
+  const projects = useProjects();
+  const activeProject = projects.find((project) => project.id === (thread?.projectId ?? activeProjectId));
 
   const [dark, setDark] = useState(false);
 
@@ -79,7 +83,7 @@ export function ChatView({
   const submit = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || busy) return;
-    createThread(threadId, trimmed.slice(0, 60));
+    createThread(threadId, trimmed.slice(0, 60), activeProjectId ?? undefined);
     setInput("");
     const context = attachments
       .map((a) => `\n\n--- Attached file: ${a.filename} ---\n${a.text}`)
@@ -95,6 +99,7 @@ export function ChatView({
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{thread?.title ?? "New task"}</p>
           <p className="text-xs text-muted-foreground">
+            {activeProject ? `${activeProject.name} · ` : "Personal workspace · "}
             {busy ? "Manus is working on this task…" : messages.length > 0 ? "Task ready for follow-up" : "Describe the outcome you want"}
           </p>
         </div>
@@ -143,6 +148,9 @@ export function ChatView({
                     }
                     if (part.type === "tool-web_search") {
                       return <SearchCard key={index} part={part as ToolUIPart} />;
+                    }
+                    if (part.type === "tool-open_public_page") {
+                      return <PageCard key={index} part={part as ToolUIPart} />;
                     }
                     if (part.type === "tool-deliver_file") {
                       return <FileCard key={index} part={part as ToolUIPart} />;

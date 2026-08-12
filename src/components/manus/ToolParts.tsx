@@ -7,10 +7,11 @@ import {
 } from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
 import type { ToolUIPart } from "ai";
-import { CheckCircle2, Circle, Download, FileText, ListChecks } from "lucide-react";
+import { BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks } from "lucide-react";
 
 type PlanOutput = { title: string; steps: string[] };
 type SearchOutput = { query: string; results: { title: string; url: string; snippet: string }[] };
+type PageOutput = { url: string; title: string; text: string; links: { label: string; url: string }[] };
 type FileOutput = { filename: string; language: string; content: string; bytes: number };
 
 export function PlanCard({ part }: { part: ToolUIPart }) {
@@ -83,6 +84,36 @@ export function SearchCard({ part }: { part: ToolUIPart }) {
   );
 }
 
+export function PageCard({ part }: { part: ToolUIPart }) {
+  const output = part.output as PageOutput | undefined;
+  const input = part.input as { url?: string } | undefined;
+  return (
+    <Tool defaultOpen={false} className="my-3">
+      <ToolHeader type={part.type} state={part.state} title={`Opened page — ${output?.title ?? input?.url ?? ""}`} />
+      <ToolContent>
+        <ToolInput input={part.input} />
+        <ToolOutput
+          errorText={part.errorText}
+          output={output ? (
+            <div className="space-y-3">
+              <a href={output.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-accent underline underline-offset-2">
+                <ExternalLink className="size-3" /> Open source page
+              </a>
+              <p className="max-h-48 overflow-auto text-xs leading-5 text-muted-foreground">{output.text}</p>
+              {output.links.length > 0 && (
+                <div className="space-y-1 border-t border-border pt-2">
+                  <p className="flex items-center gap-1 text-xs font-medium"><BookOpen className="size-3" /> Related links</p>
+                  {output.links.slice(0, 5).map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer" className="block truncate text-xs text-muted-foreground hover:text-foreground">{link.label}</a>)}
+                </div>
+              )}
+            </div>
+          ) : undefined}
+        />
+      </ToolContent>
+    </Tool>
+  );
+}
+
 export function FileCard({ part }: { part: ToolUIPart }) {
   const output = part.output as FileOutput | undefined;
   if (!output) {
@@ -109,7 +140,7 @@ export function FileCard({ part }: { part: ToolUIPart }) {
         <FileText className="size-4 text-accent" />
         <span className="font-mono text-xs">{output.filename}</span>
         <span className="text-xs text-muted-foreground">{output.bytes} B</span>
-        <Button variant="ghost" size="icon-sm" className="ml-auto" onClick={download}>
+        <Button variant="ghost" size="icon-sm" title={`Download ${output.filename}`} aria-label={`Download ${output.filename}`} className="ml-auto" onClick={download}>
           <Download />
         </Button>
       </div>

@@ -7,7 +7,7 @@ const SYSTEM_PROMPT = `You are Manus, an autonomous general AI agent.
 
 Working style:
 1. For any non-trivial request, FIRST call the "plan_task" tool with a short list of 2-6 concrete steps.
-2. Use "web_search" whenever the answer depends on current facts, news, prices, docs or anything you are unsure about. Cite sources as markdown links.
+2. Use "web_search" whenever the answer depends on current facts, news, prices, docs or anything you are unsure about. When a primary page is needed, use "open_public_page" on a result URL. Cite sources as markdown links.
 3. Use "deliver_file" to produce any concrete artifact the user can keep: code, scripts, markdown reports, CSV data, configs. Put the full content in the tool call, then summarise it briefly in the chat instead of repeating the whole file.
 4. After your steps, give a tight, well-structured markdown answer. No filler, no restating the question.
 
@@ -44,9 +44,18 @@ export const Route = createFileRoute("/api/chat")({
               }),
               execute: async ({ title, steps }) => ({ title, steps }),
             }),
+            open_public_page: tool({
+              description:
+                "Open a public HTTP(S) page found during research and extract its title, readable text and links. Never use this tool for private sessions or sensitive actions.",
+              inputSchema: z.object({ url: z.string().url() }),
+              execute: async ({ url }) => {
+                const { fetchPublicPage } = await import("@/lib/page-fetch.server");
+                return await fetchPublicPage(url);
+              },
+            }),
             web_search: tool({
               description:
-                "Search the live web and get titles, URLs and snippets for a query.",
+                "Search the live web and get titles, URLs and snippets for a query. Follow promising results with open_public_page when primary page text is needed.",
               inputSchema: z.object({ query: z.string() }),
               execute: async ({ query }) => {
                 const { searchWeb } = await import("@/lib/web-search.server");

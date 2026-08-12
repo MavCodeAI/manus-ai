@@ -10,6 +10,7 @@ import {
   Loader2,
   PanelRightClose,
   Search,
+  ExternalLink,
 } from "lucide-react";
 
 export type DerivedTask = {
@@ -20,6 +21,7 @@ export type DerivedTask = {
   progress: number;
   files: { filename: string; content: string; bytes: number }[];
   searches: string[];
+  pages: { title: string; url: string }[];
 };
 
 type AnyPart = UIMessage["parts"][number] & {
@@ -47,6 +49,7 @@ export function deriveTasks(messages: UIMessage[], busy: boolean): DerivedTask[]
           progress: 0,
           files: [],
           searches: [],
+          pages: [],
         };
         tasks.push(current);
         return;
@@ -57,6 +60,10 @@ export function deriveTasks(messages: UIMessage[], busy: boolean): DerivedTask[]
         const input = part.input as { query?: string } | undefined;
         const query = output?.query ?? input?.query;
         if (query) current.searches.push(query);
+      }
+      if (part.type === "tool-open_public_page" && part.state === "output-available") {
+        const output = part.output as { title?: string; url?: string } | undefined;
+        if (output?.url) current.pages.push({ title: output.title ?? output.url, url: output.url });
       }
       if (part.type === "tool-deliver_file" && part.state === "output-available") {
         const output = part.output as
@@ -173,6 +180,18 @@ export function TaskPanel({
                   >
                     <Search className="size-3 shrink-0" /> {query}
                   </p>
+                ))}
+              </div>
+            )}
+
+            {task.pages.length > 0 && (
+              <div className="mt-3 space-y-1 border-t border-border pt-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Opened sources</p>
+                {task.pages.map((page, index) => (
+                  <a key={`${page.url}-${index}`} href={page.url} target="_blank" rel="noreferrer" title={page.url} className="flex items-center gap-1.5 truncate rounded-md px-1 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground">
+                    <ExternalLink className="size-3 shrink-0 text-accent" />
+                    <span className="truncate">{page.title}</span>
+                  </a>
                 ))}
               </div>
             )}

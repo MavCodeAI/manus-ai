@@ -16,6 +16,8 @@ import {
   type ThreadStatus,
 } from "@/lib/threads";
 import { cn } from "@/lib/utils";
+import { WorkspaceSwitcher } from "@/components/manus/WorkspaceSwitcher";
+import { useActiveProjectId } from "@/lib/workspace";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Check,
@@ -52,6 +54,7 @@ export function ThreadSidebar({
   onClose?: (() => void) | undefined;
 }) {
   const threads = useThreads();
+  const activeProjectId = useActiveProjectId();
   const navigate = useNavigate();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -67,6 +70,8 @@ export function ThreadSidebar({
     const needle = query.trim().toLowerCase();
     return threads
       .filter((thread) => {
+        if (activeProjectId && thread.projectId !== activeProjectId) return false;
+        if (!activeProjectId && thread.projectId) return false;
         if (filter !== "all" && threadStatus(thread) !== filter) return false;
         if (!needle) return true;
         if (thread.title.toLowerCase().includes(needle)) return true;
@@ -77,7 +82,7 @@ export function ThreadSidebar({
         );
       })
       .sort((a, b) => Number(b.pinned ?? false) - Number(a.pinned ?? false) || b.updatedAt - a.updatedAt);
-  }, [threads, query, filter]);
+  }, [threads, activeProjectId, query, filter]);
 
   const startNew = () => {
     const id = newThreadId();
@@ -113,7 +118,9 @@ export function ThreadSidebar({
         )}
       </div>
 
-      <div className="px-3">
+      <WorkspaceSwitcher />
+
+      <div className="mt-2 px-3">
         <Button className="w-full justify-start gap-2" variant="secondary" onClick={startNew}>
           <Plus /> New task
         </Button>
