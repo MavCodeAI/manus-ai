@@ -12,7 +12,7 @@ import { saveWorkspaceFile } from "@/lib/files";
 import { BadgeCheck, BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, Save, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 
-type PlanOutput = { title: string; steps: string[] };
+type PlanOutput = { title: string; steps: string[]; deliverables?: string[]; risks?: string[]; estimatedMinutes?: number };
 type SearchOutput = { query: string; results: { title: string; url: string; snippet: string }[] };
 type PageOutput = { url: string; title: string; text: string; links: { label: string; url: string }[] };
 type ApprovalOutput = { id: string; action: string; reason: string; status: "pending" | "approved" | "denied" };
@@ -43,6 +43,13 @@ export function PlanCard({ part }: { part: ToolUIPart }) {
         ))}
         {!output && <li className="text-sm text-muted-foreground">Working out the steps…</li>}
       </ol>
+      {output && (output.deliverables?.length || output.risks?.length || output.estimatedMinutes) ? (
+        <div className="mt-3 grid gap-3 border-t border-border/60 pt-3 text-xs sm:grid-cols-2">
+          {output.deliverables?.length ? <div><p className="font-medium">Deliverables</p><ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">{output.deliverables.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+          {output.risks?.length ? <div><p className="font-medium">Risks & assumptions</p><ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">{output.risks.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+          {output.estimatedMinutes ? <p className="text-muted-foreground">Estimated duration: <span className="font-medium text-foreground">{output.estimatedMinutes < 60 ? `${output.estimatedMinutes} min` : `${Math.round(output.estimatedMinutes / 60)} hr`}</span></p> : null}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -41,8 +41,11 @@ export const Route = createFileRoute("/api/chat")({
               inputSchema: z.object({
                 title: z.string().describe("Short task title"),
                 steps: z.array(z.string()).describe("Ordered, concrete steps"),
+                deliverables: z.array(z.string()).max(8).optional().describe("Concrete outputs the user will receive"),
+                risks: z.array(z.string()).max(6).optional().describe("Risks, assumptions or blockers"),
+                estimatedMinutes: z.number().int().min(1).max(10080).optional().describe("Estimated duration in minutes"),
               }),
-              execute: async ({ title, steps }) => ({ title, steps }),
+              execute: async ({ title, steps, deliverables = [], risks = [], estimatedMinutes }) => ({ title, steps, deliverables, risks, estimatedMinutes }),
             }),
             request_approval: tool({
               description:
