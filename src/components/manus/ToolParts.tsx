@@ -7,11 +7,14 @@ import {
 } from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
 import type { ToolUIPart } from "ai";
-import { BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks } from "lucide-react";
+import { resolveApproval, recordApproval } from "@/lib/approvals";
+import { BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, ShieldCheck } from "lucide-react";
+import { useEffect } from "react";
 
 type PlanOutput = { title: string; steps: string[] };
 type SearchOutput = { query: string; results: { title: string; url: string; snippet: string }[] };
 type PageOutput = { url: string; title: string; text: string; links: { label: string; url: string }[] };
+type ApprovalOutput = { id: string; action: string; reason: string; status: "pending" | "approved" | "denied" };
 type FileOutput = { filename: string; language: string; content: string; bytes: number };
 
 export function PlanCard({ part }: { part: ToolUIPart }) {
@@ -81,6 +84,32 @@ export function SearchCard({ part }: { part: ToolUIPart }) {
         />
       </ToolContent>
     </Tool>
+  );
+}
+
+export function ApprovalCard({ part, onDecision }: { part: ToolUIPart; onDecision?: (status: "approved" | "denied", approval: ApprovalOutput) => void }) {
+  const output = part.output as ApprovalOutput | undefined;
+  const input = part.input as Partial<ApprovalOutput> | undefined;
+  const approval = output ?? { id: input?.id ?? `approval-${Date.now()}`, action: input?.action ?? "Sensitive action", reason: input?.reason ?? "User confirmation is required.", status: "pending" as const };
+  useEffect(() => { recordApproval(approval); }, [approval.id, approval.action, approval.reason]);
+  const pending = approval.status === "pending";
+  return (
+    <div role="alert" className="surface-panel my-3 border-accent/40 bg-accent/5 p-4">
+      <div className="flex items-start gap-3">
+        <ShieldCheck className="mt-0.5 size-5 shrink-0 text-accent" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">Approval required</p>
+          <p className="mt-1 text-sm">{approval.action}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{approval.reason}</p>
+          {pending ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => { resolveApproval(approval.id, "approved"); onDecision?.("approved", approval); }}>Allow once</Button>
+              <Button size="sm" variant="outline" onClick={() => { resolveApproval(approval.id, "denied"); onDecision?.("denied", approval); }}>Deny</Button>
+            </div>
+          ) : <p className="mt-3 text-xs font-medium text-muted-foreground">Decision: {approval.status}</p>}
+        </div>
+      </div>
+    </div>
   );
 }
 

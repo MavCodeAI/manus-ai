@@ -13,7 +13,7 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { AttachPanel, type Attachment } from "@/components/manus/AttachPanel";
 import { TaskPanel, deriveTasks } from "@/components/manus/TaskPanel";
-import { FileCard, PageCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
+import { ApprovalCard, FileCard, PageCard, PlanCard, SearchCard } from "@/components/manus/ToolParts";
 import manusMark from "@/assets/manus-mark.png";
 import { Button } from "@/components/ui/button";
 import { createThread, saveMessages, useThread } from "@/lib/threads";
@@ -145,6 +145,9 @@ export function ChatView({
                     }
                     if (part.type === "tool-plan_task") {
                       return <PlanCard key={index} part={part as ToolUIPart} />;
+                    }
+                    if (part.type === "tool-request_approval") {
+                      return <ApprovalCard key={index} part={part as ToolUIPart} onDecision={(decision, approval) => void sendMessage({ text: `${decision === "approved" ? "Approved" : "Denied"}: ${approval.action}. ${approval.reason}` })} />;
                     }
                     if (part.type === "tool-web_search") {
                       return <SearchCard key={index} part={part as ToolUIPart} />;
