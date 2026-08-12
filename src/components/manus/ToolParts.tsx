@@ -8,7 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import type { ToolUIPart } from "ai";
 import { resolveApproval, recordApproval } from "@/lib/approvals";
-import { BadgeCheck, BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, ShieldCheck, Sparkles } from "lucide-react";
+import { saveWorkspaceFile } from "@/lib/files";
+import { BadgeCheck, BookOpen, CheckCircle2, Circle, Download, ExternalLink, FileText, ListChecks, Save, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 
 type PlanOutput = { title: string; steps: string[] };
@@ -164,7 +165,7 @@ export function PageCard({ part }: { part: ToolUIPart }) {
   );
 }
 
-export function FileCard({ part }: { part: ToolUIPart }) {
+export function FileCard({ part, projectId }: { part: ToolUIPart; projectId?: string | null }) {
   const output = part.output as FileOutput | undefined;
   if (!output) {
     return (
@@ -173,6 +174,10 @@ export function FileCard({ part }: { part: ToolUIPart }) {
       </div>
     );
   }
+
+  const saveToWorkspace = () => {
+    saveWorkspaceFile(output.filename, output.content, projectId);
+  };
 
   const download = () => {
     const blob = new Blob([output.content], { type: "text/plain;charset=utf-8" });
@@ -190,9 +195,14 @@ export function FileCard({ part }: { part: ToolUIPart }) {
         <FileText className="size-4 text-accent" />
         <span className="font-mono text-xs">{output.filename}</span>
         <span className="text-xs text-muted-foreground">{output.bytes} B</span>
-        <Button variant="ghost" size="icon-sm" title={`Download ${output.filename}`} aria-label={`Download ${output.filename}`} className="ml-auto" onClick={download}>
-          <Download />
-        </Button>
+        <div className="ml-auto flex items-center gap-1">
+          <Button variant="ghost" size="icon-sm" title={`Save ${output.filename} to workspace`} aria-label={`Save ${output.filename} to workspace`} onClick={saveToWorkspace}>
+            <Save />
+          </Button>
+          <Button variant="ghost" size="icon-sm" title={`Download ${output.filename}`} aria-label={`Download ${output.filename}`} onClick={download}>
+            <Download />
+          </Button>
+        </div>
       </div>
       <pre className="max-h-96 overflow-auto bg-secondary/50 p-4 font-mono text-xs leading-relaxed">
         <code>{output.content}</code>

@@ -172,7 +172,7 @@ export function ChatView({
                       return <ReviewCard key={index} part={part as ToolUIPart} />;
                     }
                     if (part.type === "tool-deliver_file") {
-                      return <FileCard key={index} part={part as ToolUIPart} />;
+                      return <FileCard key={index} part={part as ToolUIPart} projectId={thread?.projectId ?? activeProjectId} />;
                     }
                     return null;
                   })}
