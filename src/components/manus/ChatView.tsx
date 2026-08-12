@@ -216,7 +216,7 @@ export function ChatView({
 
       <div className="mx-auto w-full max-w-3xl px-4 pb-6">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <AttachPanel attachments={attachments} onChange={setAttachments} />
+                <AttachPanel attachments={attachments} onChange={setAttachments} projectId={thread?.projectId ?? activeProjectId} />
           <div className="flex shrink-0 items-center gap-1">
             {busy && (
               <Button

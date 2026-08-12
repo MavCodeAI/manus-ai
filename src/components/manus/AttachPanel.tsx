@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { saveWorkspaceFile } from "@/lib/files";
 import { CheckCircle2, FileText, ImageIcon, Loader2, Paperclip, X, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -33,9 +34,11 @@ function validate(file: File): { ok: true; kind: "pdf" | "image" } | { ok: false
 export function AttachPanel({
   attachments,
   onChange,
+  projectId,
 }: {
   attachments: Attachment[];
   onChange: (next: Attachment[]) => void;
+  projectId?: string | null;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [jobs, setJobs] = useState<UploadJob[]>([]);
@@ -107,6 +110,7 @@ export function AttachPanel({
           const json = (await res.json()) as { text?: string; error?: string };
           if (!res.ok || !json.text) throw new Error(json.error ?? "Extraction failed");
           extracted.push({ filename: file.name, text: json.text });
+          saveWorkspaceFile(file.name, json.text, projectId);
           patch(id, { progress: 100, state: "done" });
           setTimeout(() => setJobs((current) => current.filter((job) => job.id !== id)), 1600);
         } finally {
