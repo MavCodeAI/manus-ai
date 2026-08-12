@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ConnectorsPanel } from "@/components/manus/ConnectorsPanel";
 import { MemoryPanel } from "@/components/manus/MemoryPanel";
+import { TaskTemplatesPanel } from "@/components/manus/TaskTemplatesPanel";
 import { WorkspaceFiles } from "@/components/manus/WorkspaceFiles";
 import { WorkspaceSwitcher } from "@/components/manus/WorkspaceSwitcher";
 import { useActiveProjectId } from "@/lib/workspace";
@@ -125,6 +126,7 @@ export function ThreadSidebar({
       <WorkspaceFiles />
       <ConnectorsPanel />
       <MemoryPanel />
+      <TaskTemplatesPanel />
 
       <div className="mt-2 px-3">
         <Button className="w-full justify-start gap-2" variant="secondary" onClick={startNew}>
