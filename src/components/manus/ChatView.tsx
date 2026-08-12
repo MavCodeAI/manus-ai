@@ -102,9 +102,9 @@ export function ChatView({
   };
 
   return (
-    <div className="flex h-full min-w-0">
+    <div className="flex h-full min-w-0" aria-label="Task workspace">
       <div className="flex min-w-0 flex-1 flex-col">
-      <header className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4 py-2.5 sm:px-6">
+      <header aria-live="polite" className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4 py-2.5 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{thread?.title ?? "New task"}</p>
           <p className="text-xs text-muted-foreground">
@@ -130,8 +130,9 @@ export function ChatView({
                 {SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion}
+                    type="button"
                     onClick={() => submit(suggestion)}
-                    className="surface-panel px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="surface-panel px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:border-accent/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {suggestion}
                   </button>
@@ -246,7 +247,9 @@ export function ChatView({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Toggle dark mode"
+              aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+              aria-pressed={dark}
+              title={dark ? "Switch to light mode" : "Switch to dark mode"}
               className="text-muted-foreground"
               onClick={toggleTheme}
             >
@@ -273,6 +276,7 @@ export function ChatView({
             value={input}
             onChange={(event) => setInput(event.currentTarget.value)}
             placeholder={thread ? "Follow up with Manus…" : "Give Manus a task…"}
+            aria-label={thread ? "Follow up with Manus" : "Give Manus a task"}
           />
           <PromptInputFooter className="justify-between">
             <span className="pl-1 text-xs text-muted-foreground">
@@ -291,8 +295,11 @@ export function ChatView({
           <TaskPanel tasks={tasks} runId={threadId} />
       </div>
       {panelOpen && (
-        <div className="fixed inset-y-0 right-0 z-50 shadow-xl xl:hidden">
-          <TaskPanel tasks={tasks} runId={threadId} onClose={() => setPanelOpen(false)} />
+        <div className="fixed inset-0 z-50 xl:hidden" role="dialog" aria-modal="true" aria-label="Run inspector">
+          <button type="button" aria-label="Close run inspector" className="absolute inset-0 bg-foreground/20" onClick={() => setPanelOpen(false)} />
+          <div className="absolute inset-y-0 right-0 shadow-xl">
+            <TaskPanel tasks={tasks} runId={threadId} onClose={() => setPanelOpen(false)} />
+          </div>
         </div>
       )}
     </div>

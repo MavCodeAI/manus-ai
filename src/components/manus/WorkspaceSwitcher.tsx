@@ -50,7 +50,7 @@ export function WorkspaceSwitcher() {
             aria-label="Select project"
             value={activeId ?? ""}
             onChange={(event) => selectProject(event.target.value || null)}
-            className="mt-0.5 w-full truncate bg-transparent text-sm font-medium outline-none"
+            className="mt-0.5 w-full truncate bg-transparent text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <option value="">Personal workspace</option>
             {projects.map((project) => (
@@ -74,8 +74,8 @@ export function WorkspaceSwitcher() {
               <DialogDescription>Keep instructions, tasks, sources, and outputs together.</DialogDescription>
             </DialogHeader>
             <div className="space-y-3">
-              <Input autoFocus value={name} onChange={(event) => setName(event.currentTarget.value)} placeholder="Project name" onKeyDown={(event) => event.key === "Enter" && submit()} />
-              <Input value={description} onChange={(event) => setDescription(event.currentTarget.value)} placeholder="Optional description" />
+              <Input autoFocus value={name} onChange={(event) => setName(event.currentTarget.value)} aria-label="Project name" placeholder="Project name" onKeyDown={(event) => event.key === "Enter" && submit()} />
+              <Input value={description} onChange={(event) => setDescription(event.currentTarget.value)} aria-label="Optional project description" placeholder="Optional description" />
             </div>
             <DialogFooter>
               <Button onClick={submit} disabled={!name.trim()}>Create project</Button>
@@ -88,14 +88,14 @@ export function WorkspaceSwitcher() {
               type="button"
               title="Rename project"
               aria-label="Rename project"
-              className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => { setEditingId(active.id); setEditingName(active.name); }}
             ><Pencil className="size-3.5" /></button>
             <button
               type="button"
               title="Delete project"
               aria-label="Delete project"
-              className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => { if (window.confirm(`Delete project “${active.name}”?`)) { deleteProject(active.id); toast.success("Project deleted"); } }}
             ><Trash2 className="size-3.5" /></button>
           </div>
@@ -104,8 +104,8 @@ export function WorkspaceSwitcher() {
 
       {editingId && (
         <div className="mt-2 flex items-center gap-1">
-          <Input autoFocus value={editingName} onChange={(event) => setEditingName(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === "Enter") { renameProject(editingId, editingName); setEditingId(null); } if (event.key === "Escape") setEditingId(null); }} className="h-8 text-xs" />
-          <button type="button" title="Save project name" aria-label="Save project name" className="rounded-md p-1.5 text-accent hover:bg-secondary" onClick={() => { renameProject(editingId, editingName); setEditingId(null); }}><Check className="size-3.5" /></button>
+          <Input autoFocus value={editingName} onChange={(event) => setEditingName(event.currentTarget.value)} aria-label="Project name" onKeyDown={(event) => { if (event.key === "Enter") { renameProject(editingId, editingName); setEditingId(null); } if (event.key === "Escape") setEditingId(null); }} className="h-8 text-xs" />
+          <button type="button" title="Save project name" aria-label="Save project name" className="rounded-md p-1.5 text-accent hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => { renameProject(editingId, editingName); setEditingId(null); }}><Check className="size-3.5" /></button>
         </div>
       )}
     </div>

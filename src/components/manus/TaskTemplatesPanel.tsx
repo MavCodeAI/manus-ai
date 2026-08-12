@@ -10,11 +10,19 @@ const TEMPLATES = [
 ] as const;
 
 export function TaskTemplatesPanel() {
-  const copy = async (prompt: string) => { await navigator.clipboard?.writeText(prompt); toast.success("Template copied to clipboard"); };
+  const copy = async (prompt: string) => {
+    try {
+      if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(prompt);
+      toast.success("Template copied to clipboard");
+    } catch {
+      toast.error("Could not copy template. Select and copy it from the title tooltip.");
+    }
+  };
   return (
-    <div className="mx-3 mt-3 rounded-lg border border-sidebar-border bg-background/30 p-2">
+    <section aria-label="Task templates" className="mx-3 mt-3 rounded-lg border border-sidebar-border bg-background/30 p-2">
       <div className="flex items-center gap-2 px-1 py-1 text-[10px] uppercase tracking-wider text-muted-foreground"><ClipboardList className="size-3" /> Templates</div>
       <div className="mt-1 space-y-1">{TEMPLATES.map(([name, prompt]) => <Button key={name} variant="ghost" className="h-7 w-full justify-between px-2 text-xs" title={prompt} onClick={() => copy(prompt)}><span className="truncate">{name}</span><Copy className="size-3 shrink-0 text-muted-foreground" /></Button>)}</div>
-    </div>
+    </section>
   );
 }

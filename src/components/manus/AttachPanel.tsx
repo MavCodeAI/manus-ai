@@ -129,13 +129,14 @@ export function AttachPanel({
   };
 
   return (
-    <div className="min-w-0 flex-1">
+    <section aria-label="Attachments" className="min-w-0 flex-1">
       <input
         ref={inputRef}
         type="file"
         accept=".pdf,application/pdf,image/png,image/jpeg,image/webp,image/gif"
         multiple
         className="hidden"
+        aria-label="Choose PDF or image files"
         onChange={(event) => {
           void handleFiles(event.currentTarget.files);
           event.currentTarget.value = "";
@@ -143,7 +144,7 @@ export function AttachPanel({
       />
 
       {jobs.length > 0 && (
-        <div className="mb-2 space-y-2">
+        <div className="mb-2 space-y-2" aria-live="polite">
           {jobs.map((job) => (
             <div key={job.id} className="surface-panel px-3 py-2">
               <div className="flex items-center gap-2 text-xs">
@@ -190,9 +191,11 @@ export function AttachPanel({
               <span className="max-w-40 truncate font-mono">{attachment.filename}</span>
               <span className="text-muted-foreground">{attachment.text.length} chars</span>
               <button
+                type="button"
                 aria-label={`Remove ${attachment.filename}`}
+                title={`Remove ${attachment.filename}`}
                 onClick={() => onChange(attachments.filter((_, i) => i !== index))}
-                className="text-muted-foreground hover:text-destructive"
+                className="rounded-full text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X className="size-3" />
               </button>
@@ -212,6 +215,6 @@ export function AttachPanel({
         {busy ? <Loader2 className="animate-spin" /> : <Paperclip />}
         {busy ? "Reading files…" : "Attach PDF / image"}
       </Button>
-    </div>
+    </section>
   );
 }

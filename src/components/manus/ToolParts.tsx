@@ -69,7 +69,7 @@ export function SearchCard({ part }: { part: ToolUIPart }) {
                       href={result.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm font-medium underline decoration-accent/50 underline-offset-2"
+                      className="text-sm font-medium underline decoration-accent/50 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {result.title}
                     </a>
@@ -118,7 +118,7 @@ export function CitationCard({ part }: { part: ToolUIPart }) {
   const output = part.output as CitationOutput | undefined;
   if (!output) return <Tool defaultOpen={false} className="my-3"><ToolHeader type="tool-verify_citation" state={part.state} /><ToolContent><ToolInput input={part.input} /></ToolContent></Tool>;
   const percent = Math.round(output.confidence * 100);
-  return <div className="surface-panel my-3 border-emerald-500/30 bg-emerald-500/5 p-3"><div className="flex items-start gap-2"><BadgeCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" /><div className="min-w-0"><p className="text-xs font-medium">Citation check · {percent}% match</p><p className="mt-1 text-sm">{output.claim}</p><a href={output.url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-accent hover:underline">{output.title || output.url}</a><p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{output.excerpt}</p></div></div></div>;
+  return <div role="status" className="surface-panel my-3 border-emerald-500/30 bg-emerald-500/5 p-3"><div className="flex items-start gap-2"><BadgeCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" /><div className="min-w-0"><p className="text-xs font-medium">Citation check · {percent}% match</p><p className="mt-1 text-sm">{output.claim}</p><a href={output.url} target="_blank" rel="noreferrer" className="mt-1 block truncate text-xs text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{output.title || output.url}</a><p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{output.excerpt}</p></div></div></div>;
 }
 
 export function PageCard({ part }: { part: ToolUIPart }) {
@@ -133,14 +133,14 @@ export function PageCard({ part }: { part: ToolUIPart }) {
           errorText={part.errorText}
           output={output ? (
             <div className="space-y-3">
-              <a href={output.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-accent underline underline-offset-2">
+              <a href={output.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-accent underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <ExternalLink className="size-3" /> Open source page
               </a>
               <p className="max-h-48 overflow-auto text-xs leading-5 text-muted-foreground">{output.text}</p>
               {output.links.length > 0 && (
                 <div className="space-y-1 border-t border-border pt-2">
                   <p className="flex items-center gap-1 text-xs font-medium"><BookOpen className="size-3" /> Related links</p>
-                  {output.links.slice(0, 5).map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer" className="block truncate text-xs text-muted-foreground hover:text-foreground">{link.label}</a>)}
+                  {output.links.slice(0, 5).map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer" className="block truncate text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{link.label}</a>)}
                 </div>
               )}
             </div>
